@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sai Ganesh Narayanagiri — Graphic Designer & Vibe Coder</title>
+  <meta name="description" content="Portfolio of Sai Ganesh Narayanagiri — Graphic Designer specialising in branding, print media & digital design. Builds SaaS products using AI.">
+  <link rel="icon" href="data:,">
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400&display=swap" rel="stylesheet">
+
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <!-- Lenis Smooth Scroll -->
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+
+  <style>
+    /* ============================================================
+       DESIGN TOKENS & RESET
+    ============================================================ */
+    :root {
+      --bg:          #080808;
+      --bg-card:     #111111;
+      --bg-card-hover: #161616;
+      --amber:       #F5A623;
+      --amber-dim:   #B87A1A;
+      --amber-glow:  rgba(245,166,35,0.15);
+      --white:       #FFFFFF;
+      --grey-1:      #EBEBEB;
+      --grey-2:      #999999;
+      --grey-3:      #444444;
+      --grey-4:      #222222;
+      --border:      rgba(255,255,255,0.07);
+      --radius:      12px;
+      --radius-lg:   20px;
+      --font:        'Inter', sans-serif;
+      --transition:  0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    html { scroll-behavior: auto; font-size: 16px; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: var(--font);
+      line-height: 1.6;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ============================================================
+       CUSTOM CURSOR
+    ============================================================ */
+    #cursor {
+      width: 10px; height: 10px;
+      background: var(--amber);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s, width 0.25s, height 0.25s, background 0.25s;
+    }
+    #cursor-follower {
+      width: 36px; height: 36px;
+      border: 1.5px solid var(--amber);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.12s ease, width 0.25s, height 0.25s, opacity 0.25s;
+      opacity: 0.5;
+    }
+    body:hover #cursor-follower { opacity: 1; }
+    a:hover ~ #cursor, button:hover ~ #cursor { transform: translate(-50%,-50%) scale(2.5); }
+
+    /* ============================================================
+       NOISE TEXTURE OVERLAY
+    ============================================================ */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.025;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ============================================================
+       TYPOGRAPHY SCALE
+    ============================================================ */
+    h1 { font-size: clamp(2.8rem, 7vw, 6.5rem); font-weight: 800; line-height: 1.05; letter-spacing: -0.03em; overflow: visible; }
+    h2 { font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; }
+    h3 { font-size: clamp(1.1rem, 2vw, 1.4rem); font-weight: 600; line-height: 1.3; }
+    h4 { font-size: 0.95rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--grey-2); }
+    p  { font-size: 1rem; font-weight: 400; color: var(--grey-2); }
+
+    .amber { color: var(--amber); }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+    /* ============================================================
+       SCROLLBAR
+    ============================================================ */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--amber-dim); border-radius: 2px; }
+
+    /* ============================================================
+       NAVIGATION
+    ============================================================ */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1.2rem 4vw;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: background 0.4s, backdrop-filter 0.4s, border-bottom 0.4s;
+    }
+    nav.scrolled {
+      background: rgba(8,8,8,0.88);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-size: 1rem; font-weight: 700; letter-spacing: -0.02em;
+      text-decoration: none; color: var(--white);
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+    .nav-logo-mark {
+      width: 34px; height: 34px;
+      background: var(--amber);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; font-weight: 800; color: #000;
+      flex-shrink: 0;
+    }
+    .nav-links {
+      display: flex; align-items: center; gap: 2.5rem;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.875rem; font-weight: 500;
+      color: var(--grey-2); text-decoration: none;
+      transition: color var(--transition);
+      letter-spacing: 0.02em;
+    }
+    .nav-links a:hover { color: var(--white); }
+    .nav-cta {
+      background: var(--amber); color: #000 !important;
+      padding: 0.5rem 1.2rem; border-radius: 6px;
+      font-weight: 600 !important;
+      transition: background var(--transition), transform var(--transition) !important;
+    }
+    .nav-cta:hover { background: #ffc14d !important; transform: translateY(-1px); }
+    /* Nav scroll-spy active state */
+    .nav-links a.nav-active { color: var(--amber) !important; }
+    .nav-links a.nav-active.nav-cta { color: #000 !important; }
+
+
+    /* Mobile menu toggle */
+    .nav-hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 4px;
+    }
+    .nav-hamburger span {
+      display: block; width: 24px; height: 2px; background: var(--white);
+      transition: var(--transition);
+    }
+
+    /* ============================================================
+       HERO
+    ============================================================ */
+    #hero {
+      min-height: 100vh;
+      display: grid; grid-template-columns: 1fr 1fr;
+      align-items: center;
+      padding: 0 4vw;
+      gap: 4vw;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 70% at 70% 50%, rgba(245,166,35,0.06) 0%, transparent 70%),
+                  radial-gradient(ellipse 40% 50% at 20% 80%, rgba(245,166,35,0.04) 0%, transparent 60%);
+    }
+    .hero-grid-lines {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .hero-content { position: relative; z-index: 2; padding-top: 6rem; }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--amber);
+      margin-bottom: 1.5rem;
+    }
+    .hero-eyebrow::before {
+      content: ''; display: block;
+      width: 30px; height: 1px; background: var(--amber);
+    }
+    .hero-title { margin-bottom: 1.2rem; overflow: visible; padding-bottom: 0.1em; }
+    .hero-title .word { display: inline-block; overflow: visible; padding-bottom: 0.08em; }
+    .hero-title .char { display: inline-block; }
+    .hero-subtitle {
+      font-size: clamp(1rem, 1.8vw, 1.25rem);
+      font-weight: 300; color: var(--grey-2);
+      max-width: 520px; margin-bottom: 2.5rem;
+      line-height: 1.75;
+    }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.8rem 1.8rem; border-radius: 8px;
+      font-size: 0.9rem; font-weight: 600;
+      text-decoration: none; cursor: pointer;
+      transition: all var(--transition);
+      border: none;
+    }
+    .btn-primary {
+      background: var(--amber); color: #000;
+    }
+    .btn-primary:hover { background: #ffc14d; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245,166,35,0.3); }
+    .btn-ghost {
+      background: transparent; color: var(--white);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { border-color: var(--grey-3); background: var(--bg-card); transform: translateY(-2px); }
+    .hero-stats {
+      display: flex; gap: 2.5rem; margin-top: 3rem;
+      padding-top: 2rem; border-top: 1px solid var(--border);
+    }
+    .stat-number { font-size: 2rem; font-weight: 800; color: var(--white); line-height: 1; }
+    .stat-label { font-size: 0.8rem; color: var(--grey-2); margin-top: 0.2rem; }
+
+    /* Hero image side */
+    .hero-visual {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      align-self: stretch;
+      padding-top: 6rem;
+    }
+    .hero-image-shell {
+      position: relative;
+      width: min(480px, 45vw);
+    }
+    .hero-image-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 3/4;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.35);
+    }
+    .hero-image-wrapper img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+    }
+    .hero-image-glow {
+      position: absolute; inset: -2px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, var(--amber) 0%, transparent 40%, transparent 60%, var(--amber-dim) 100%);
+      opacity: 0.3;
+      z-index: -1;
+    }
+    /* Scroll indicator */
+    .scroll-indicator {
+      position: absolute; bottom: 2rem; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+      font-size: 0.75rem; color: var(--grey-3); letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .scroll-line {
+      width: 1px; height: 50px;
+      background: linear-gradient(to bottom, var(--amber), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+    @keyframes scrollPulse { 0%,100%{opacity:.3;transform:scaleY(1)} 50%{opacity:1;transform:scaleY(1.2)} }
+
+    /* ============================================================
+       SECTION COMMONS
+    ============================================================ */
+    section { padding: 7rem 4vw; position: relative; }
+    .section-header { margin-bottom: 4rem; }
+    .section-tag {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-size: 0.78rem; font-weight: 600; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--amber);
+      margin-bottom: 0.8rem;
+    }
+    .section-tag::after {
+      content: ''; display: block;
+      width: 24px; height: 1px; background: var(--amber);
+    }
+    .section-title { margin-bottom: 1rem; }
+    .section-subtitle { max-width: 560px; }
+    .divider { height: 1px; background: var(--border); margin: 0 4vw; }
+
+    /* ============================================================
+       ABOUT
+    ============================================================ */
+    #about { background: linear-gradient(180deg, var(--bg) 0%, #0c0c0c 100%); }
+    .about-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 6rem; align-items: start;
+    }
+    .about-text p {
+      font-size: 1.05rem; line-height: 1.85;
+      color: var(--grey-1); margin-bottom: 1.5rem;
+    }
+    .about-text p span { color: var(--amber); font-weight: 500; }
+    /* Skills chips */
+    .skills-wrap { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 2rem; }
+    .skill-chip {
+      padding: 0.3rem 0.8rem; border-radius: 100px;
+      border: 1px solid var(--border);
+      font-size: 0.78rem; font-weight: 500; color: var(--grey-2);
+      background: var(--bg-card);
+    }
+    .skill-chip.highlight { border-color: rgba(245,166,35,0.4); color: var(--amber); background: var(--amber-glow); }
+
+    /* ============================================================
+       WORK SECTION
+    ============================================================ */
+    #work { padding-top: 5rem; }
+
+    /* Main tabs */
+    .main-tabs {
+      display: flex; gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--bg-card);
+      width: fit-content;
+      margin-bottom: 3rem;
+    }
+    .main-tab {
+      padding: 0.75rem 2rem;
+      font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; border: none;
+      background: transparent; color: var(--grey-2);
+      transition: all var(--transition);
+      letter-spacing: 0.02em;
+    }
+    .main-tab.active { background: var(--amber); color: #000; }
+    .main-tab:hover:not(.active) { color: var(--white); background: var(--bg-card-hover); }
+
+    /* Sub tabs (Print / Publicity) */
+    .sub-tabs {
+      display: flex; gap: 0.3rem;
+      margin-bottom: 2.5rem;
+    }
+    .sub-tab {
+      padding: 0.5rem 1.2rem; border-radius: 6px;
+      font-size: 0.85rem; font-weight: 500;
+      cursor: pointer; border: 1px solid transparent;
+      background: transparent; color: var(--grey-2);
+      transition: all var(--transition);
+    }
+    .sub-tab.active { border-color: var(--amber); color: var(--amber); background: var(--amber-glow); }
+    .sub-tab:hover:not(.active) { color: var(--white); border-color: var(--border); }
+
+    /* Tab content panels */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ============================================================
+       PROJECT GRID
+    ============================================================ */
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .project-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+      position: relative;
+    }
+    .project-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(245,166,35,0.35);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 0 1px rgba(245,166,35,0.1);
+    }
+    .card-image-wrap {
+      aspect-ratio: 4/3;
+      overflow: hidden;
+      position: relative;
+    }
+    .card-image-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94);
+      display: block;
+    }
+    .project-card:hover .card-image-wrap img { transform: scale(1.07); }
+    .card-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(8,8,8,0.85) 0%, transparent 50%);
+      opacity: 0; transition: opacity var(--transition);
+      display: flex; align-items: flex-end; padding: 1.2rem;
+    }
+    .project-card:hover .card-overlay { opacity: 1; }
+    .overlay-cta {
+      display: flex; align-items: center; gap: 0.4rem;
+      font-size: 0.82rem; font-weight: 600; color: var(--amber);
+      letter-spacing: 0.05em;
+    }
+    .card-body { padding: 1.2rem; }
+    .card-tag {
+      display: inline-block;
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--amber);
+      margin-bottom: 0.4rem;
+    }
+    .card-title { font-size: 1rem; font-weight: 600; color: var(--white); line-height: 1.3; }
+    .card-desc { font-size: 0.82rem; color: var(--grey-2); margin-top: 0.4rem; line-height: 1.5;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-img-count {
+      position: absolute; top: 1rem; right: 1rem;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.7rem; font-weight: 600; color: var(--grey-2);
+    }
+
+    /* ============================================================
+       SAAS HORIZONTAL SCROLL
+    ============================================================ */
+    #saas-panel { overflow: visible; }
+    .saas-scroll-container {
+      display: flex; gap: 2rem;
+      padding: 1rem 0 2rem;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .saas-scroll-container::-webkit-scrollbar { display: none; }
+    .saas-card {
+      flex-shrink: 0;
+      width: min(520px, 80vw);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+    }
+    .saas-card:hover {
+      border-color: rgba(245,166,35,0.4);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(245,166,35,0.08);
+      transform: translateY(-4px);
+    }
+    .saas-card-screens {
+      height: 280px; overflow: hidden; position: relative;
+      background: var(--grey-4);
+    }
+    .saas-card-screens img {
+      width: 100%; height: 100%; object-fit: cover; object-position: top;
+      display: block;
+      transition: transform 0.8s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    .saas-card:hover .saas-card-screens img { transform: scale(1.04); }
+    .saas-card-body { padding: 1.8rem; }
+    .saas-card-name { font-size: 1.3rem; font-weight: 700; color: var(--white); margin-bottom: 0.3rem; }
+    .saas-card-tagline { font-size: 0.9rem; color: var(--amber); font-weight: 500; margin-bottom: 0.8rem; }
+    .saas-card-desc { font-size: 0.88rem; color: var(--grey-2); line-height: 1.65; margin-bottom: 1.2rem; }
+    .saas-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.2rem; }
+    .saas-tag {
+      padding: 0.25rem 0.65rem; border-radius: 100px;
+      border: 1px solid var(--border); background: var(--bg);
+      font-size: 0.72rem; font-weight: 500; color: var(--grey-2);
+    }
+    .saas-card-footer { display: flex; gap: 1rem; align-items: center; }
+    .saas-live-btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.55rem 1.2rem;
+      background: var(--amber); color: #000;
+      border-radius: 7px; font-size: 0.82rem; font-weight: 700;
+      text-decoration: none; transition: all var(--transition);
+    }
+    .saas-live-btn:hover { background: #ffc14d; transform: translateY(-1px); }
+    .saas-details-btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.55rem 1.2rem;
+      background: transparent; color: var(--grey-2);
+      border: 1px solid var(--border);
+      border-radius: 7px; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; transition: all var(--transition);
+    }
+    .saas-details-btn:hover { color: var(--white); border-color: var(--grey-3); }
+
+    /* Horizontal scroll arrows */
+    .saas-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
+    .saas-arrows { display: flex; gap: 0.75rem; }
+    .arrow-btn {
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 1px solid var(--border); background: var(--bg-card);
+      color: var(--white); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; transition: all var(--transition);
+    }
+    .arrow-btn:hover { border-color: var(--amber); color: var(--amber); background: var(--amber-glow); }
+
+    /* ============================================================
+       CONTACT
+    ============================================================ */
+    #contact {
+      background: linear-gradient(180deg, var(--bg) 0%, #060606 100%);
+      text-align: center;
+    }
+    .contact-inner { max-width: 640px; margin: 0 auto; }
+    .contact-email {
+      font-size: clamp(1.2rem, 3vw, 2rem); font-weight: 700;
+      color: var(--white); text-decoration: none;
+      border-bottom: 2px solid var(--amber);
+      padding-bottom: 0.1em;
+      transition: color var(--transition);
+      display: inline-block; margin: 1.5rem 0;
+    }
+    .contact-email:hover { color: var(--amber); }
+    .contact-socials { display: flex; gap: 1.2rem; justify-content: center; margin-top: 2rem; flex-wrap: wrap; }
+    .social-link {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.6rem 1.2rem;
+      border: 1px solid var(--border); border-radius: 8px;
+      font-size: 0.85rem; font-weight: 500; color: var(--grey-2);
+      text-decoration: none; background: var(--bg-card);
+      transition: all var(--transition);
+    }
+    .social-link:hover { border-color: var(--amber); color: var(--amber); background: var(--amber-glow); }
+    .social-link svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    footer {
+      padding: 2rem 4vw;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    footer p { font-size: 0.82rem; color: var(--grey-3); }
+    footer a { color: var(--amber); text-decoration: none; }
+
+    /* ============================================================
+       MODAL
+    ============================================================ */
+    #modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.92);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center; justify-content: center;
+      padding: 2rem;
+    }
+    #modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      width: 100%; max-width: 1000px;
+      max-height: 90vh;
+      overflow: hidden;
+      display: grid; grid-template-columns: 1fr 380px;
+      position: relative;
+    }
+    .modal-gallery {
+      background: #0d0d0d;
+      position: relative;
+      overflow: hidden;
+      min-height: 440px;
+    }
+    .modal-gallery-main {
+      width: 100%; height: 100%;
+      object-fit: contain;
+      display: block;
+      transition: opacity 0.3s;
+      max-height: 70vh;
+    }
+    .modal-nav-btn {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 40px; height: 40px;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+      border: 1px solid var(--border); border-radius: 50%;
+      color: var(--white); cursor: pointer; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: all var(--transition); z-index: 2;
+    }
+    .modal-nav-btn:hover { border-color: var(--amber); color: var(--amber); }
+    .modal-prev { left: 1rem; }
+    .modal-next { right: 1rem; }
+    .modal-counter {
+      position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+      border: 1px solid var(--border); border-radius: 100px;
+      padding: 0.3rem 0.8rem; font-size: 0.75rem; color: var(--grey-2);
+    }
+    .modal-sidebar {
+      padding: 2rem; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 1.5rem;
+      border-left: 1px solid var(--border);
+    }
+    .modal-tag { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--amber); }
+    .modal-title { font-size: 1.5rem; font-weight: 700; color: var(--white); line-height: 1.2; }
+    .modal-desc { font-size: 0.9rem; color: var(--grey-2); line-height: 1.7; }
+    .modal-story-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--grey-3); margin-bottom: 0.4rem; }
+    .modal-story { font-size: 0.85rem; color: var(--grey-2); line-height: 1.7; border-left: 2px solid var(--amber); padding-left: 1rem; }
+    .modal-thumbnails { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .modal-thumb {
+      width: 60px; height: 45px; border-radius: 6px;
+      overflow: hidden; border: 2px solid transparent;
+      cursor: pointer; transition: border-color var(--transition);
+      flex-shrink: 0;
+    }
+    .modal-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .modal-thumb.active { border-color: var(--amber); }
+    .modal-close {
+      position: absolute; top: 1rem; right: 1rem;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--bg); border: 1px solid var(--border);
+      color: var(--white); cursor: pointer; font-size: 1.1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: all var(--transition); z-index: 10;
+    }
+    .modal-close:hover { background: var(--grey-4); border-color: var(--grey-3); }
+    .modal-link {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.6rem 1.2rem;
+      background: var(--amber); color: #000;
+      border-radius: 8px; font-size: 0.85rem; font-weight: 700;
+      text-decoration: none; width: fit-content;
+      transition: all var(--transition);
+    }
+    .modal-link:hover { background: #ffc14d; transform: translateY(-1px); }
+
+    /* ============================================================
+       ANIMATIONS - Initial states
+    ============================================================ */
+    .reveal-up { opacity: 0; transform: translateY(40px); }
+    .reveal-fade { opacity: 0; }
+    .stagger-item { opacity: 0; transform: translateY(30px); }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 1024px) {
+      .project-grid { grid-template-columns: repeat(2, 1fr); }
+      .modal { grid-template-columns: 1fr; max-height: 90vh; }
+      .modal-gallery { min-height: 300px; }
+      .modal-sidebar { border-left: none; border-top: 1px solid var(--border); }
+      .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+    }
+    @media (max-width: 768px) {
+      #hero { grid-template-columns: 1fr; text-align: center; padding-top: 6rem; }
+      .hero-content { order: 2; padding-top: 0; }
+      .hero-visual { order: 1; padding-top: 0.5rem; align-self: auto; }
+      .hero-image-shell { width: min(280px, 70vw); }
+      .hero-image-wrapper { aspect-ratio: 3/4; }
+      .hero-subtitle { margin: 0 auto 2rem; }
+      .hero-actions { justify-content: center; }
+      .hero-eyebrow { justify-content: center; }
+      .hero-stats { justify-content: center; }
+      .project-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      .nav-hamburger { display: flex; }
+      .main-tabs { width: 100%; }
+      .main-tab { flex: 1; text-align: center; padding: 0.75rem 0.5rem; font-size: 0.82rem; }
+      footer { justify-content: center; text-align: center; }
+      #modal-overlay { padding: 1rem; }
+    }
+    @media (max-width: 480px) {
+      section { padding: 4rem 5vw; }
+      h1 { font-size: 2.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom Cursor -->
+  <div id="cursor"></div>
+  <div id="cursor-follower"></div>
+
+  <!-- ============================================================
+       NAVIGATION
+  ============================================================ -->
+  <nav id="navbar">
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-mark">SG</div>
+      <span>Sai Ganesh</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#work">Work</a></li>
+      <li><a href="#work" onclick="switchToSaaS()">SaaS</a></li>
+      <li><a href="#contact" class="nav-cta">Contact</a></li>
+    </ul>
+    <button class="nav-hamburger" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- ============================================================
+       HERO
+  ============================================================ -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid-lines"></div>
+
+    <div class="hero-content">
+      <div class="hero-eyebrow">Based in Hyderabad, India</div>
+
+      <h1 class="hero-title">
+        <span class="word">Sai</span>&nbsp;<span class="word">Ganesh</span><br>
+        <span class="word" style="color:var(--amber)">Narayanagiri</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        Graphic Designer &amp; Vibe Coder — crafting clean, purposeful visuals and building AI-powered SaaS products at the intersection of design and technology.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#work" class="btn btn-primary">View My Work ↓</a>
+        <a href="#contact" class="btn btn-ghost">Get in Touch</a>
+      </div>
+
+      <div class="hero-stats">
+        <div>
+          <div class="stat-number">10<span class="amber">+</span></div>
+          <div class="stat-label">Projects Completed</div>
+        </div>
+        <div>
+          <div class="stat-number">2<span class="amber">+</span></div>
+          <div class="stat-label">SaaS Products Built</div>
+        </div>
+        <div>
+          <div class="stat-number">∞</div>
+          <div class="stat-label">Creative Ideas</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <!-- HERO PHOTO: Replace with your own photo if needed -->
+      <div class="hero-image-shell">
+        <div class="hero-image-glow"></div>
+        <div class="hero-image-wrapper">
+          <img src="hero-portrait.jpg" alt="Sai Ganesh Narayanagiri" loading="eager">
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-indicator">
+      <div class="scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ============================================================
+       ABOUT
+  ============================================================ -->
+  <section id="about">
+    <div class="section-header reveal-up">
+      <div class="section-tag">About Me</div>
+      <h2 class="section-title">Design. Code. <span class="amber">Create.</span></h2>
+    </div>
+
+    <div class="about-grid">
+      <div class="about-text reveal-up">
+        <p>
+          I'm a graphic designer specialising in <span>branding and digital design</span>, focused on creating clean, purposeful visuals that communicate ideas clearly. My approach is not just about aesthetics — it's about solving problems through design using strong layouts, typography, and visual hierarchy.
+        </p>
+        <p>
+          In addition to design, I build software products through <span>vibe coding</span>, using AI tools to enhance productivity, explore ideas faster, and develop scalable solutions. I enjoy working at the intersection of design and technology.
+        </p>
+        <div class="skills-wrap">
+          <span class="skill-chip">Branding</span>
+          <span class="skill-chip">Print Design</span>
+          <span class="skill-chip">UI Design</span>
+          <span class="skill-chip">Vibe Coding</span>
+          <span class="skill-chip">AI Tools</span>
+          <span class="skill-chip">Adobe Illustrator</span>
+          <span class="skill-chip">Photoshop</span>
+          <span class="skill-chip">Figma</span>
+          <span class="skill-chip">Canva</span>
+          <span class="skill-chip">SaaS Development</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ============================================================
+       WORK
+  ============================================================ -->
+  <section id="work">
+    <div class="section-header reveal-up">
+      <div class="section-tag">Portfolio</div>
+      <h2 class="section-title">Selected <span class="amber">Work</span></h2>
+      <p class="section-subtitle">A curated showcase of graphic design projects and SaaS products built with purpose.</p>
+    </div>
+
+    <!-- Main Tab Switcher -->
+    <div class="main-tabs">
+      <button class="main-tab active" onclick="switchMainTab('design', this)">Graphic Design</button>
+      <button class="main-tab" onclick="switchMainTab('saas', this)">SaaS Products</button>
+    </div>
+
+    <!-- ── GRAPHIC DESIGN PANEL ── -->
+    <div id="design-panel" class="tab-panel active">
+      <div class="sub-tabs">
+        <button class="sub-tab active" onclick="switchSubTab('print', this)">Print Media</button>
+        <button class="sub-tab" onclick="switchSubTab('publicity', this)">Publicity</button>
+      </div>
+
+      <!-- PRINT MEDIA SUB-PANEL -->
+      <!-- ADD NEW PRINT MEDIA PROJECTS: copy a .project-card block and update the data-* attributes and image src -->
+      <div id="print-panel" class="tab-panel active">
+        <div class="project-grid" id="print-grid">
+
+          <!-- PROJECT 1: DENTAL STUDIO -->
+          <div class="project-card stagger-item"
+            data-title="Dental Studio Campaign"
+            data-tag="Print Media"
+            data-desc="A bold 3D poster series promoting dental implant services for Dental Studio clinic. Designed with striking 3D tooth imagery and dynamic typography to drive patient engagement and awareness."
+            data-images='["portfolio_fixed_9_assets/img-001.jpg","portfolio_fixed_9_assets/img-002.jpg"]'
+            onclick="openModal(this)">
+            <div class="card-image-wrap">
+              <img src="portfolio_fixed_9_assets/img-001.jpg" alt="Dental Studio Campaign" loading="lazy">
+              <div class="card-overlay"><div class="overlay-cta">View Project →</div></div>
+              <span class="card-img-count">2 images</span>
+            </div>
+            <div class="card-body">
+              <span class="card-tag">Print Media</span>
+              <h3 class="card-title">Dental Studio Campaign</h3>
+              <p class="card-desc">3D poster series promoting dental implant services with bold visual storytelling.</p>
+            </div>
+          </div>
+
+          <!-- PROJECT 2: MATERNITY WING -->
+          <div class="project-card stagger-item"
+            data-title="Maternity Wing — Hospital Banner"
+            data-tag="Print Media"
+            data-desc="An elegant illustrated triptych banner for a hospital's maternity section, celebrating the journey of motherhood through three poetic stages — A Beginning Unseen, A Miracle in Progress, and A Life Embraced."
+            data-images='["portfolio_fixed_9_assets/img-003.jpg"]'
+            onclick="openModal(this)">
+            <div class="card-image-wrap">
+              <img src="portfolio_fixed_9_assets/img-003.jpg" alt="Maternity Wing Banner" loading="lazy">
+              <div class="card-overlay"><div class="overlay-cta">View Project →</div></div>
+            </div>
+            <div class="card-body">
+              <span class="card-tag">Print Media</span>
+              <h3 class="card-title">Maternity Wing — Hospital Banner</h3>
+              <p class="card-desc">Illustrated triptych celebrating the journey of motherhood in three poetic stages.</p>
+            </div>
+          </div>
+
+          <!-- PROJECT 3: NIHIRA -->
+          <div class="project-card stagger-item"
+            data-title="Nihira — The Designer Studio"
+            data-tag="Print Media"
+            data-desc="Complete print and display design suite for Nihira, a premium Indian designer boutique. Crafted a Mughal-inspired visual language featuring peacock motifs, ornate arches, and a refined typographic identity."
+            data-images='["portfolio_fixed_9_assets/img-004.jpg","portfolio_fixed_9_assets/img-005.jpg"]'
+            onclick="openModal(this)">
+            <div class="card-image-wrap">
+              <img src="portfolio_fixed_9_assets/img-004.jpg" alt="Nihira Designer Studio" loading="lazy">
+              <div class="card-overlay"><div class="overlay-cta">View Project →</div></div>
+              <span class="card-img-count">2 images</span>
+            </div>
+            <div class="card-body">
+              <span class="card-tag">Print Media</span>
+              <h3 class="card-title">Nihira — The Designer Studio</h3>
+              <p class="card-desc">Mughal-inspired standee, backdrop and brand identity for a premium boutique.</p>
+            </div>
+          </div>
+
+          <!-- PROJECT 4: INTERIOR DESIGN STUDIO -->
+          <div class="project-card stagger-item"
+            data-title="Interior Design Studio"
+            data-tag="Print Media"
+            data-desc="A comprehensive visual suite for an interior design firm, including 5-step process infographics, creative workflow banners, and brand identity collateral with lotus and geometric motifs."
+            data-images='["portfolio_fixed_9_assets/img-006.jpg","portfolio_fixed_9_assets/img-007.jpg","portfolio_fixed_9_assets/img-008.jpg","portfolio_fixed_9_assets/img-009.jpg","portfolio_fixed_9_assets/img-009.jpg"]'
+            onclick="openModal(this)">
+            <div class="card-image-wrap">
+              <img src="portfolio_fixed_9_assets/img-006.jpg" alt="Interior Design Studio" loading="lazy">
+              <div class="card-overlay"><div class="overlay-cta">View Project →</div></div>
+              <span class="card-img-count">5 images</span>
+            </div>
+            <div class="card-body">
+              <span class="card-tag">Print Media</span>
+              <h3 class="card-title">Interior Design Studio</h3>
+              <p class="card-desc">Process infographics, workflow banners and brand collateral for an interior firm.</p>
+            </div>
+          </div>
+
+          <!-- PROJECT 5: VYRA KITCHEN -->
+          <div class="project-card stagger-item"
+            data-title="Vyra Kitchen — Restaurant"
+            data-tag="Print Media"
+            data-desc="Illustrated poster series for Vyra Kitchen, a European-inspired restaurant. Features hand-drawn Parisian café scenes with vibrant colors, vintage car illustration, and a charming cobblestone street scene — bringing warmth and character to the brand."
+            data-images='["portfolio_fixed_9_assets/img-010.jpg","portfolio_fixed_9_assets/img-011.jpg"]'
+            onclick="openModal(this)">
+            <div class="card-image-wrap">
+              <img src="portfolio_fixed_9_assets/img-010.jpg" alt="Vyra Kitchen Restaurant" loading="lazy">
+              <div class="card-overlay"><div class="overlay-cta">View Project →</div></div>
+              <span class="card-img-count">2 images</span>
+            </div>
+            <div class="card-body">
+              <span class="card-tag">Print Media</span>
+              <h3 class="card-title">Vyra Kitchen — Restaurant</h3>
+              <p class="card-desc">Illustrated Parisian café posters with hand-drawn charm and vintage aesthetics.</p>
+            </div>
+          </div>
+
+          <!-- PROJECT 6: TRADITIONAL ART -->
+          <div class="project-card stagger-item"
+            data-title="Traditional Art Series"
+            data-tag="Print Media"
+            data-desc="A cultural illustration collection celebrating Indian heritage — from South Indian temple gopurams and Bharatanatyam classical dance to Warli tribal pottery art and Hindu devotional backdrops. Each piece captures the richness and depth of Indian artistic tradition."
+            data-images='["portfolio_fixed_9_assets/img-012.jpg","portfolio_fixed_9_assets/img-013.jpg","portfolio_fixed_9_assets/img-014.jpg","portfolio_fixed_9_assets/img-015.jpg","portfolio_fixed_9_assets/img-016.jpg","portfolio_fixed_9_assets/img-017.jpg"]'
+            onclick="openModal(this)">
+            <div class="card-image-wrap">
+              <img src="portfolio_fixed_9_assets/img-017.jpg" alt="Traditional Art Series" loading="lazy">
+              <div class="card-overlay"><div class="overlay-cta">View Project →</div></div>
+              <span class="card-img-count">6 images</span>
+            </div>
+            <div class="card-body">
+              <span class="card-tag">Print Media</span>
+              <h3 class="card-title">Traditional Art Series</h3>
+              <p class="card-desc">Cultural illustration collection celebrating Indian heritage and classical art forms.</p>
+            </div>
+          </div>
+
+          <!-- PROJECT 7: SAHA'S HILL CREST -->
+          <div class="project-card stagger-item"
+            data-title="Saha's Hill Crest — Real Estate Campaign"
+            data-tag="Print Media"
+            data-desc="Full real estate marketing campaign for Saha Developers — including bold hoardings, an elegant event invitation, and a complete 5-page brochure for Hill Crest, a premium plotted development at Rachakonda, Vijayawada Highway. Serenity Has a New Address."
+            data-images='["portfolio_fixed_9_assets/img-018.jpg","portfolio_fixed_9_assets/img-019.jpg","portfolio_fixed_9_assets/img-020.jpg","portfolio_fixed_9_assets/img-021.jpg","portfolio_fixed_9_assets/img-022.jpg","portfolio_fixed_9_assets/img-023.jpg","portfolio_fixed_9_assets/img-024.jpg","portfolio_fixed_9_assets/img-025.jpg"]'
+            onclick="openModal(this)">
+            <div class="card-image-wrap">
+              <img src="portfolio_fixed_9_assets/img-018.jpg" alt="Saha's Hill Crest" loading="lazy">
+              <div class="card-overlay"><div class="overlay-cta">View Project →</div></div>
+              <span class="card-img-count">8 images</span>
+            </div>
+            <div class="card-body">
+              <span class="card-tag">Print Media</span>
+              <h3 class="card-title">Saha's Hill Crest — Real Estate</h3>
+              <p class="card-desc">Complete real estate campaign: hoardings, invitation, and full brochure design.</p>
+            </div>
+          </div>
+
+        </div><!-- /print-grid -->
+      </div><!-- /print-panel -->
+
+      <!-- PUBLICITY SUB-PANEL -->
+      <!-- ADD NEW PUBLICITY PROJECTS: copy a .project-card block and update the data-* attributes -->
+      <div id="publicity-panel" class="tab-panel">
+        <div class="project-grid" id="publicity-grid">
+
+          <!-- PROJECT 8: YOUTUBE THUMBNAILS -->
+          <div class="project-card stagger-item"
+            data-title="YouTube Thumbnails"
+            data-tag="Publicity"
+            data-desc="High-impact YouTube thumbnail designs crafted for maximum click-through rates. Bold typography, cinematic compositions, and strong visual hierarchy for news channels and tutorial content. Each thumbnail tells the story before the viewer even clicks."
+            data-images='["portfolio_fixed_9_assets/img-026.jpg","portfolio_fixed_9_assets/img-027.jpg","portfolio_fixed_9_assets/img-028.jpg","portfolio_fixed_9_assets/img-029.jpg","portfolio_fixed_9_assets/img-030.jpg"]'
+            onclick="openModal(this)">
+            <div class="card-image-wrap">
+              <img src="portfolio_fixed_9_assets/img-026.jpg" alt="YouTube Thumbnails" loading="lazy">
+              <div class="card-overlay"><div class="overlay-cta">View Project →</div></div>
+              <span class="card-img-count">5 images</span>
+            </div>
+            <div class="card-body">
+              <span class="card-tag">Publicity</span>
+              <h3 class="card-title">YouTube Thumbnails</h3>
+              <p class="card-desc">Cinematic, high-CTR thumbnail designs for news and tutorial YouTube channels.</p>
+            </div>
+          </div>
+
+          <!-- PROJECT 9: AI GENERATED DESIGNS -->
+          <div class="project-card stagger-item"
+            data-title="AI Generated Designs"
+            data-tag="Publicity"
+            data-desc="A curated collection of AI-assisted digital art exploring the boundaries of visual storytelling — from cinematic crossover posters (Baahubali × Gladiator) to divine deity illustrations, personal branding work, and mythological fan art. Created using AI tools to accelerate creative exploration."
+            data-images='["portfolio_fixed_9_assets/img-031.jpg","portfolio_fixed_9_assets/img-032.jpg","portfolio_fixed_9_assets/img-033.jpg","portfolio_fixed_9_assets/img-034.jpg","portfolio_fixed_9_assets/img-035.jpg","portfolio_fixed_9_assets/img-036.jpg","portfolio_fixed_9_assets/img-037.jpg"]'
+            onclick="openModal(this)">
+            <div class="card-image-wrap">
+              <img src="portfolio_fixed_9_assets/img-031.jpg" alt="AI Generated Designs" loading="lazy">
+              <div class="card-overlay"><div class="overlay-cta">View Project →</div></div>
+              <span class="card-img-count">7 images</span>
+            </div>
+            <div class="card-body">
+              <span class="card-tag">Publicity</span>
+              <h3 class="card-title">AI Generated Designs</h3>
+              <p class="card-desc">AI-assisted digital art — cinematic posters, divine illustrations and fan art.</p>
+            </div>
+          </div>
+
+          <!-- PROJECT 10: CREATIVE POSTER DESIGNS -->
+          <div class="project-card stagger-item"
+            data-title="Creative Poster Designs"
+            data-tag="Publicity"
+            data-desc="A diverse portfolio of creative poster work — movie poster redesigns (John Wick), personal branding campaigns, brand ad concepts (Skechers), fantasy photo composites, editorial fan art, and bold typographic layouts. Showcases the full range of visual storytelling skills across styles and mediums."
+            data-images='["portfolio_fixed_9_assets/img-038.jpg","portfolio_fixed_9_assets/img-039.jpg","portfolio_fixed_9_assets/img-040.jpg","portfolio_fixed_9_assets/img-041.jpg","portfolio_fixed_9_assets/img-042.jpg","portfolio_fixed_9_assets/img-043.jpg","portfolio_fixed_9_assets/img-044.jpg","portfolio_fixed_9_assets/img-045.jpg","portfolio_fixed_9_assets/img-046.jpg","portfolio_fixed_9_assets/img-047.jpg","portfolio_fixed_9_assets/img-048.jpg"]'
+            onclick="openModal(this)">
+            <div class="card-image-wrap">
+              <img src="portfolio_fixed_9_assets/img-047.jpg" alt="Creative Poster Designs" loading="lazy">
+              <div class="card-overlay"><div class="overlay-cta">View Project →</div></div>
+              <span class="card-img-count">11 images</span>
+            </div>
+            <div class="card-body">
+              <span class="card-tag">Publicity</span>
+              <h3 class="card-title">Creative Poster Designs</h3>
+              <p class="card-desc">Movie posters, personal branding, brand ads and editorial composites.</p>
+            </div>
+          </div>
+
+        </div><!-- /publicity-grid -->
+      </div><!-- /publicity-panel -->
+    </div><!-- /design-panel -->
+
+    <!-- ── SAAS PANEL ── -->
+    <!-- ADD NEW SAAS PRODUCTS: copy a .saas-card block and update content -->
+    <div id="saas-panel" class="tab-panel">
+      <div class="saas-nav">
+        <div>
+          <p style="color:var(--grey-2);font-size:0.9rem;">2 products built — more in progress.</p>
+        </div>
+        <div class="saas-arrows">
+          <button class="arrow-btn" onclick="scrollSaaS(-1)" aria-label="Previous">←</button>
+          <button class="arrow-btn" onclick="scrollSaaS(1)" aria-label="Next">→</button>
+        </div>
+      </div>
+
+      <div class="saas-scroll-container" id="saas-scroll">
+
+        <!-- SAAS PRODUCT 1: MOONGLUE CANVAS -->
+        <div class="saas-card"
+          data-title="MoonGlue Canvas"
+          data-tag="SaaS Product"
+          data-desc="A focused creative platform that simplifies production workflows by bringing only essential tools into one clean, connected system — built for designers, creators and teams who want a faster, more organized way to create, manage, and deliver work."
+          data-story="Built after witnessing fragmented production workflows with too many tools and constant switching. While working on design and content, I realized most platforms try to do everything but fail to support what actually matters day-to-day. I also wanted a system where even non-designers — like marketing and sales teams — can easily create previews, share work with clients, and collaborate without needing deep software knowledge. MoonGlue was created to eliminate friction between teams and clients, creating a smooth, connected workflow that improves productivity and makes the entire process faster and more efficient."
+          data-images='["portfolio_fixed_9_assets/img-049.jpg"]'
+          data-link="https://courageous-froyo-53f4d1.netlify.app/"
+          onclick="openModal(this)">
+          <div class="saas-card-screens">
+            <img src="portfolio_fixed_9_assets/img-049.jpg" alt="MoonGlue Canvas" loading="lazy">
+          </div>
+          <div class="saas-card-body">
+            <div class="saas-card-name">MoonGlue Canvas</div>
+            <div class="saas-card-tagline">Creative Production, Simplified.</div>
+            <p class="saas-card-desc">A focused creative platform that simplifies production workflows by bringing only essential tools into one clean, connected system. Built for designers, creators and teams.</p>
+            <div class="saas-tags">
+              <span class="saas-tag">SaaS</span>
+              <span class="saas-tag">Design Tool</span>
+              <span class="saas-tag">Productivity</span>
+              <span class="saas-tag">Workflow</span>
+            </div>
+            <div class="saas-card-footer">
+              <a href="https://courageous-froyo-53f4d1.netlify.app/" target="_blank" class="saas-live-btn" onclick="event.stopPropagation()">↗ Live Product</a>
+              <button class="saas-details-btn" onclick="event.stopPropagation(); openModal(this.closest('.saas-card'))">Case Study</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SAAS PRODUCT 2: DESIGN WALLS -->
+        <div class="saas-card"
+          data-title="Design Walls — DV Design"
+          data-tag="SaaS Product"
+          data-desc="An interactive wallpaper catalogue platform that lets designers present immersive wall design previews to clients — bridging the gap between concept and execution through a beautiful, dark catalogue interface."
+          data-story="Built to solve a common gap between designers and clients — where ideas are often hard to visualize before execution. Instead of sharing static images or unclear concepts, this platform allows designs to be presented as real, immersive previews. It helps clients understand the vision instantly, reduces back-and-forth, and creates a smoother workflow. The goal was to turn design presentation into a clear, interactive experience that improves communication, confidence, and overall productivity."
+          data-images='["portfolio_fixed_9_assets/img-050.jpg","portfolio_fixed_9_assets/img-051.jpg","portfolio_fixed_9_assets/img-052.jpg"]'
+          data-link="https://dvdesign-designwalls.vercel.app/"
+          onclick="openModal(this)">
+          <div class="saas-card-screens">
+            <img src="portfolio_fixed_9_assets/img-050.jpg" alt="Design Walls" loading="lazy">
+          </div>
+          <div class="saas-card-body">
+            <div class="saas-card-name">Design Walls — DV Design</div>
+            <div class="saas-card-tagline">Visualize Before You Execute.</div>
+            <p class="saas-card-desc">An interactive wallpaper catalogue that turns static design concepts into immersive client previews — reducing back-and-forth and speeding up approvals.</p>
+            <div class="saas-tags">
+              <span class="saas-tag">SaaS</span>
+              <span class="saas-tag">Interior Design</span>
+              <span class="saas-tag">Visualization</span>
+              <span class="saas-tag">Client Tool</span>
+            </div>
+            <div class="saas-card-footer">
+              <a href="https://dvdesign-designwalls.vercel.app/" target="_blank" class="saas-live-btn" onclick="event.stopPropagation()">↗ Live Product</a>
+              <button class="saas-details-btn" onclick="event.stopPropagation(); openModal(this.closest('.saas-card'))">Case Study</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /saas-scroll -->
+    </div><!-- /saas-panel -->
+
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ============================================================
+       CONTACT
+  ============================================================ -->
+  <section id="contact">
+    <div class="contact-inner">
+      <div class="section-tag" style="justify-content:center">Get In Touch</div>
+      <h2 class="section-title reveal-up">Let's work <span class="amber">together.</span></h2>
+      <p class="reveal-up" style="margin-top:1rem;font-size:1.05rem;">
+        Available for freelance projects, full-time opportunities, and creative collaborations. Let's build something great.
+      </p>
+
+      <div class="contact-socials reveal-up" style="justify-content:center;flex-wrap:wrap;gap:0.8rem;">
+        <a href="mailto:moonglue57@gmail.com" class="social-link">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px;flex-shrink:0">
+            <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.8" fill="none"/>
+            <path d="M2 7l10 7 10-7" stroke="currentColor" stroke-width="1.8" fill="none"/>
+          </svg>
+          Mail
+        </a>
+        <a href="https://wa.me/919177225655" target="_blank" class="social-link">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px;flex-shrink:0">
+            <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.978-1.41A9.96 9.96 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z" stroke="currentColor" stroke-width="1.8" fill="none"/>
+            <path d="M8.5 9.5c0-.5.4-1 .9-1 .2 0 .4.1.5.3l1 2.2c.1.2.1.4 0 .6l-.6.8c.5 1 1.4 1.9 2.4 2.4l.8-.6c.2-.1.4-.1.6 0l2.2 1c.2.1.3.3.3.5 0 .5-.4.9-.9.9C11.6 16 8 12.4 8.5 9.5z" stroke="currentColor" stroke-width="1.4" fill="none"/>
+          </svg>
+          WhatsApp
+        </a>
+        <a href="tel:+919177225655" class="social-link">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px;flex-shrink:0">
+            <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C9.6 21 3 14.4 3 6c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z" stroke="currentColor" stroke-width="1.8" fill="none"/>
+          </svg>
+          +91 91772 25655
+        </a>
+        <a href="https://www.instagram.com/moon.gluesdesigns?igsh=eW44cG9kNXd6M3Jh" target="_blank" class="social-link">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px;flex-shrink:0">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="currentColor" stroke-width="1.8" fill="none"/>
+            <circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8" fill="none"/>
+            <circle cx="17.5" cy="6.5" r="1" fill="currentColor"/>
+          </svg>
+          Instagram
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer>
+    <p>© 2025 Sai Ganesh Narayanagiri. All rights reserved.</p>
+    <p>Designed &amp; Built by <a href="mailto:moonglue57@gmail.com">Sai Ganesh</a> · <a href="https://www.instagram.com/moon.gluesdesigns?igsh=eW44cG9kNXd6M3Jh" target="_blank">Moonglue Designs</a></p>
+  </footer>
+
+  <!-- ============================================================
+       MODAL
+  ============================================================ -->
+  <div id="modal-overlay" role="dialog" aria-modal="true" aria-label="Project details" onclick="closeModalOnOverlay(event)">
+    <div class="modal" id="modal">
+      <button class="modal-close" onclick="closeModal()" aria-label="Close modal">✕</button>
+
+      <!-- Left: Gallery -->
+      <div class="modal-gallery">
+        <img id="modal-main-img" class="modal-gallery-main" src="" alt="Project image">
+        <button class="modal-nav-btn modal-prev" onclick="modalNav(-1)" aria-label="Previous image">←</button>
+        <button class="modal-nav-btn modal-next" onclick="modalNav(1)" aria-label="Next image">→</button>
+        <div class="modal-counter" id="modal-counter">1 / 1</div>
+      </div>
+
+      <!-- Right: Details -->
+      <div class="modal-sidebar">
+        <div>
+          <div class="modal-tag" id="modal-tag"></div>
+          <div class="modal-title" id="modal-title"></div>
+        </div>
+        <p class="modal-desc" id="modal-desc"></p>
+        <div id="modal-story-wrap" style="display:none">
+          <div class="modal-story-label">The Story</div>
+          <p class="modal-story" id="modal-story"></p>
+        </div>
+        <div>
+          <div class="modal-story-label" style="margin-bottom:0.6rem">Images</div>
+          <div class="modal-thumbnails" id="modal-thumbs"></div>
+        </div>
+        <a id="modal-link-btn" href="#" target="_blank" class="modal-link" style="display:none">↗ Visit Live Product</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SCRIPTS
+  ============================================================ -->
+  <script>
+    // ============================================================
+    // LENIS SMOOTH SCROLL — Single RAF via GSAP ticker only
+    // ============================================================
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    });
+    // Only use GSAP ticker — DO NOT also use a separate requestAnimationFrame loop
+    gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+    gsap.ticker.lagSmoothing(0);
+
+    // ============================================================
+    // CUSTOM CURSOR
+    // ============================================================
+    const cursor = document.getElementById('cursor');
+    const follower = document.getElementById('cursor-follower');
+    let mouseX = 0, mouseY = 0, followX = 0, followY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX; mouseY = e.clientY;
+      gsap.to(cursor, { x: mouseX, y: mouseY, duration: 0.05 });
+    });
+
+    function updateFollower() {
+      followX += (mouseX - followX) * 0.12;
+      followY += (mouseY - followY) * 0.12;
+      gsap.set(follower, { x: followX, y: followY });
+      requestAnimationFrame(updateFollower);
+    }
+    updateFollower();
+
+    document.querySelectorAll('a, button, .project-card, .saas-card').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        gsap.to(cursor, { scale: 3, duration: 0.3 });
+        gsap.to(follower, { scale: 1.5, opacity: 0.3, duration: 0.3 });
+      });
+      el.addEventListener('mouseleave', () => {
+        gsap.to(cursor, { scale: 1, duration: 0.3 });
+        gsap.to(follower, { scale: 1, opacity: 1, duration: 0.3 });
+      });
+    });
+
+    // ============================================================
+    // NAVBAR — scroll effect + scroll-spy active state
+    // ============================================================
+    const navbar = document.getElementById('navbar');
+    const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+    const sections = ['hero', 'about', 'work', 'contact'];
+
+    function updateNavActive() {
+      const scrollY = window.scrollY || lenis.scroll;
+      const windowH = window.innerHeight;
+      let current = 'hero';
+
+      sections.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= windowH * 0.4) current = id;
+      });
+
+      navLinks.forEach(a => {
+        a.classList.remove('nav-active');
+        const href = a.getAttribute('href').replace('#', '');
+        if (href === current) a.classList.add('nav-active');
+      });
+
+      navbar.classList.toggle('scrolled', (window.scrollY || 0) > 50);
+    }
+
+    // Use both lenis scroll event and window scroll for reliability
+    lenis.on('scroll', updateNavActive);
+    window.addEventListener('scroll', updateNavActive, { passive: true });
+    updateNavActive();
+
+    // ============================================================
+    // GSAP ANIMATIONS
+    // ============================================================
+    gsap.registerPlugin(ScrollTrigger);
+
+    function animateIfPresent(selector, fromVars, toVars) {
+      const targets = gsap.utils.toArray(selector);
+      if (!targets.length) return;
+      gsap.fromTo(targets, fromVars, toVars);
+    }
+
+    // Hero text reveal — word by word
+    animateIfPresent('.hero-title .word',
+      { y: 60, opacity: 0 },
+      { y: 0, opacity: 1, stagger: 0.12, duration: 1, ease: 'power4.out', delay: 0.3 }
+    );
+    animateIfPresent('.hero-eyebrow', { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.8, delay: 0.1 });
+    animateIfPresent('.hero-subtitle', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.9, delay: 0.7 });
+    animateIfPresent('.hero-actions', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.9 });
+    animateIfPresent('.hero-stats', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, delay: 1.1 });
+    animateIfPresent('.hero-image-wrapper',
+      { opacity: 0, scale: 0.92, x: 40 },
+      { opacity: 1, scale: 1, x: 0, duration: 1.2, ease: 'power3.out', delay: 0.5 }
+    );
+
+    // Scroll-triggered: reveal-up elements
+    gsap.utils.toArray('.reveal-up').forEach(el => {
+      gsap.fromTo(el,
+        { opacity: 0, y: 50 },
+        {
+          opacity: 1, y: 0, duration: 0.9, ease: 'power3.out',
+          scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' }
+        }
+      );
+    });
+
+    // Staggered grid items
+    function animateGrid(gridId) {
+      const items = document.querySelectorAll('#' + gridId + ' .stagger-item');
+      if (!items.length) return;
+      gsap.fromTo(items,
+        { opacity: 0, y: 40 },
+        {
+          opacity: 1, y: 0, stagger: 0.1, duration: 0.7, ease: 'power3.out',
+          scrollTrigger: { trigger: '#' + gridId, start: 'top 82%', toggleActions: 'play none none none' }
+        }
+      );
+    }
+    animateGrid('print-grid');
+    animateGrid('publicity-grid');
+
+    // SaaS cards
+    animateIfPresent('.saas-card',
+      { opacity: 0, x: 50 },
+      {
+        opacity: 1, x: 0, stagger: 0.15, duration: 0.8, ease: 'power3.out',
+        scrollTrigger: { trigger: '#saas-scroll', start: 'top 82%' }
+      }
+    );
+
+    // Parallax hero background
+    if (document.querySelector('.hero-bg')) {
+      gsap.to('.hero-bg', {
+        y: 80,
+        scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: 1.5 }
+      });
+    }
+
+    // ============================================================
+    // TABS
+    // ============================================================
+    function switchMainTab(tabName, btn) {
+      document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('#work > .tab-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById(tabName + '-panel').classList.add('active');
+      setTimeout(() => ScrollTrigger.refresh(), 100);
+    }
+
+    function switchToSaaS() {
+      const btn = document.querySelectorAll('.main-tab')[1];
+      switchMainTab('saas', btn);
+    }
+
+    function switchSubTab(tabName, btn) {
+      document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('#design-panel > .tab-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById(tabName + '-panel').classList.add('active');
+      setTimeout(() => ScrollTrigger.refresh(), 100);
+    }
+
+    // ============================================================
+    // SAAS HORIZONTAL SCROLL
+    // ============================================================
+    function scrollSaaS(direction) {
+      const container = document.getElementById('saas-scroll');
+      const card = container.querySelector('.saas-card');
+      if (!card) return;
+      const cardWidth = card.offsetWidth + 32;
+      container.scrollBy({ left: direction * cardWidth, behavior: 'smooth' });
+    }
+
+    // ============================================================
+    // MODAL
+    // ============================================================
+    let modalImages = [];
+    let modalCurrentIndex = 0;
+
+    function openModal(card) {
+      const title  = card.dataset.title || '';
+      const tag    = card.dataset.tag || '';
+      const desc   = card.dataset.desc || '';
+      const story  = card.dataset.story || '';
+      const link   = card.dataset.link || '';
+      let images;
+      try { images = JSON.parse(card.dataset.images || '[]'); }
+      catch(e) { images = []; }
+
+      modalImages = images;
+      modalCurrentIndex = 0;
+
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-tag').textContent = tag;
+      document.getElementById('modal-desc').textContent = desc;
+
+      const storyWrap = document.getElementById('modal-story-wrap');
+      if (story) {
+        document.getElementById('modal-story').textContent = story;
+        storyWrap.style.display = 'block';
+      } else {
+        storyWrap.style.display = 'none';
+      }
+
+      const linkBtn = document.getElementById('modal-link-btn');
+      if (link) { linkBtn.href = link; linkBtn.style.display = 'inline-flex'; }
+      else { linkBtn.style.display = 'none'; }
+
+      const thumbsContainer = document.getElementById('modal-thumbs');
+      thumbsContainer.innerHTML = '';
+      images.forEach((src, i) => {
+        const div = document.createElement('div');
+        div.className = 'modal-thumb' + (i === 0 ? ' active' : '');
+        div.onclick = () => setModalImage(i);
+        const img = document.createElement('img');
+        img.src = src; img.alt = 'Image ' + (i+1);
+        div.appendChild(img);
+        thumbsContainer.appendChild(div);
+      });
+
+      setModalImage(0);
+
+      const overlay = document.getElementById('modal-overlay');
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      lenis.stop();
+
+      gsap.fromTo('#modal', { opacity: 0, scale: 0.95 }, { opacity: 1, scale: 1, duration: 0.35, ease: 'power3.out' });
+    }
+
+    function setModalImage(index) {
+      if (index < 0) index = modalImages.length - 1;
+      if (index >= modalImages.length) index = 0;
+      modalCurrentIndex = index;
+
+      const img = document.getElementById('modal-main-img');
+      gsap.to(img, { opacity: 0, duration: 0.15, onComplete: () => {
+        img.src = modalImages[index];
+        gsap.to(img, { opacity: 1, duration: 0.2 });
+      }});
+
+      document.getElementById('modal-counter').textContent = (index + 1) + ' / ' + modalImages.length;
+
+      document.querySelectorAll('.modal-thumb').forEach((t, i) => {
+        t.classList.toggle('active', i === index);
+      });
+
+      const navPrev = document.querySelector('.modal-prev');
+      const navNext = document.querySelector('.modal-next');
+      if (navPrev) navPrev.style.display = modalImages.length <= 1 ? 'none' : 'flex';
+      if (navNext) navNext.style.display = modalImages.length <= 1 ? 'none' : 'flex';
+    }
+
+    function modalNav(direction) { setModalImage(modalCurrentIndex + direction); }
+
+    function closeModal() {
+      gsap.to('#modal', { opacity: 0, scale: 0.95, duration: 0.25, onComplete: () => {
+        document.getElementById('modal-overlay').classList.remove('open');
+        document.body.style.overflow = '';
+        lenis.start();
+      }});
+    }
+
+    function closeModalOnOverlay(e) {
+      if (e.target === document.getElementById('modal-overlay')) closeModal();
+    }
+
+    document.addEventListener('keydown', (e) => {
+      const overlay = document.getElementById('modal-overlay');
+      if (!overlay.classList.contains('open')) return;
+      if (e.key === 'Escape') closeModal();
+      if (e.key === 'ArrowRight') modalNav(1);
+      if (e.key === 'ArrowLeft') modalNav(-1);
+    });
+
+    // ============================================================
+    // SMOOTH SCROLL FOR NAV LINKS
+    // ============================================================
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', (e) => {
+        const href = a.getAttribute('href');
+        if (href === '#') return;
+        const target = document.querySelector(href);
+        if (target) {
+          e.preventDefault();
+          lenis.scrollTo(target, { offset: -80, duration: 1.4 });
+        }
+      });
+    });
+
+    // ============================================================
+    // MOBILE MENU
+    // ============================================================
+    function toggleMobileMenu() {
+      const links = document.querySelector('.nav-links');
+      if (!links) return;
+      const isOpen = links.style.display === 'flex';
+      if (isOpen) {
+        gsap.to(links, { opacity: 0, y: -10, duration: 0.2, onComplete: () => {
+          links.removeAttribute('style');
+        }});
+      } else {
+        Object.assign(links.style, {
+          display: 'flex', flexDirection: 'column', position: 'absolute',
+          top: '64px', left: '0', right: '0',
+          background: 'rgba(8,8,8,0.98)', backdropFilter: 'blur(20px)',
+          padding: '1.5rem 4vw', borderBottom: '1px solid rgba(255,255,255,0.07)',
+          zIndex: '99', gap: '1.2rem', opacity: '0'
+        });
+        gsap.to(links, { opacity: 1, y: 0, duration: 0.25, from: { y: -10 } });
+      }
+    }
+
+  </script>
+
+
+  <!--
+  ================================================================
+  MAINTENANCE GUIDE — How to update this portfolio
+  ================================================================
+
+  FOLDER STRUCTURE:
+  portfolio.html         ← this file
+  assets/                ← all images go here
+    dental_1.png
+    dental_2.png
+    ... (all other images)
+
+  ─────────────────────────────────────────
+  HOW TO ADD A NEW PRINT MEDIA PROJECT:
+  ─────────────────────────────────────────
+  1. Add your image(s) to the /assets/ folder
+  2. Find the comment "ADD NEW PRINT MEDIA PROJECTS" in the HTML
+  3. Copy the project-card block below the comment and paste after the last card
+  4. Update:
+     - data-title: Project name
+     - data-tag: "Print Media"
+     - data-desc: Full description (appears in modal)
+     - data-images: JSON array of image paths e.g. '["assets/new_1.jpg"]'
+     - img src: cover image
+     - card-img-count: number of images
+     - card-title: display title
+     - card-desc: 2-line preview description
+
+  ─────────────────────────────────────────
+  HOW TO ADD A NEW PUBLICITY PROJECT:
+  ─────────────────────────────────────────
+  Same as above but find "ADD NEW PUBLICITY PROJECTS" comment.
+  Change data-tag to "Publicity".
+
+  ─────────────────────────────────────────
+  HOW TO ADD A NEW SAAS PRODUCT:
+  ─────────────────────────────────────────
+  1. Add screenshots to /assets/
+  2. Find "ADD NEW SAAS PRODUCTS" comment
+  3. Copy the saas-card block and update:
+     - data-title, data-desc, data-story, data-images, data-link
+     - saas-card-name, saas-card-tagline, saas-card-desc
+     - Update saas-tags with relevant tags
+     - Update href on saas-live-btn with live URL
+     - Update img src with first screenshot
+
+  ─────────────────────────────────────────
+  UPDATING PERSONAL INFO:
+  ─────────────────────────────────────────
+  - Hero photo: Replace portfolio_fixed_9_assets/img-053.jpg
