@@ -142,26 +142,6 @@
       will-change: width;
     }
 
-    /* ============================================================
-       CARD TILT — fully GSAP-driven, no CSS transform conflict
-    ============================================================ */
-    .project-card, .saas-card {
-      transform-style: preserve-3d;
-    }
-
-    /* ============================================================
-       NOISE TEXTURE OVERLAY
-    ============================================================ */
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
-      opacity: 0.035;
-      pointer-events: none;
-      z-index: 1;
-      mix-blend-mode: multiply;
-    }
-
     .garden-scene {
       position: fixed;
       inset: 0;
@@ -260,10 +240,11 @@
       pointer-events: none;
       overflow: hidden;
       transform: translateZ(0);
+      contain: paint;
     }
     .petal {
       position: absolute;
-      top: -16vh;
+      top: var(--top, -16vh);
       left: var(--x);
       width: var(--s);
       height: calc(var(--s) * 0.68);
@@ -272,7 +253,6 @@
       opacity: var(--o);
       z-index: var(--z, 4);
       transform: rotate(var(--r));
-      filter: blur(var(--blur, 0px)) drop-shadow(0 5px 12px rgba(33,108,55,0.12));
       animation: petalFall var(--d) linear var(--delay) infinite;
       contain: layout paint;
       will-change: transform;
@@ -288,10 +268,10 @@
       transform: rotate(14deg);
     }
     @keyframes petalFall {
-      0% { transform: translate3d(0, -18vh, 0) rotate(var(--r)) scale(var(--scale, 1)); }
-      34% { transform: translate3d(calc(var(--drift) * .48), 34vh, 0) rotate(calc(var(--r) + 145deg)) scale(var(--scale, 1)); }
-      68% { transform: translate3d(var(--drift), 76vh, 0) rotate(calc(var(--r) + 310deg)) scale(var(--scale, 1)); }
-      100% { transform: translate3d(calc(var(--drift) * -0.38), 124vh, 0) rotate(calc(var(--r) + 540deg)) scale(var(--scale, 1)); }
+      0% { transform: translate3d(0, -22vh, 0) rotate(var(--r)) scale(var(--scale, 1)); }
+      30% { transform: translate3d(calc(var(--drift) * .32), 28vh, 0) rotate(calc(var(--r) + 118deg)) scale(var(--scale, 1)); }
+      66% { transform: translate3d(var(--drift), 76vh, 0) rotate(calc(var(--r) + 284deg)) scale(var(--scale, 1)); }
+      100% { transform: translate3d(calc(var(--drift) * -0.42), 132vh, 0) rotate(calc(var(--r) + 560deg)) scale(var(--scale, 1)); }
     }
     @keyframes cloudDrift {
       from { transform: translate3d(-3vw, 0, 0); }
@@ -530,15 +510,6 @@
       display: block;
       transform: scale(1.015);
       filter: saturate(1.08) contrast(1.02);
-    }
-    .hero-image-wrapper video {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center top;
-      display: block;
     }
     .hero-image-glow {
       position: absolute; inset: -2px;
@@ -1574,25 +1545,30 @@
     ];
 
     if (petalField) {
-      const petalCount = window.matchMedia('(max-width: 768px)').matches ? 34 : 58;
+      const isSmallScreen = window.matchMedia('(max-width: 768px)').matches;
+      const petalCount = isSmallScreen ? 64 : 112;
+      const streamCount = Math.floor(petalCount * 0.72);
       const fragment = document.createDocumentFragment();
 
       for (let i = 0; i < petalCount; i++) {
         const petal = document.createElement('span');
-        const isNear = i % 9 === 0;
-        const size = isNear ? 24 + Math.random() * 24 : 7 + Math.random() * 14;
+        const isStream = i < streamCount;
+        const isNear = i % 12 === 0;
+        const size = isNear ? 30 + Math.random() * 28 : (isStream ? 12 + Math.random() * 16 : 8 + Math.random() * 14);
+        const laneX = isStream ? ((i % 28) / 27) * 108 - 4 : Math.random() * 108 - 4;
+        const duration = isStream ? 9.5 + Math.random() * 8 : 16 + Math.random() * 12;
         petal.className = 'petal';
         petal.style.cssText = [
-          `--x:${Math.random() * 104 - 2}%`,
+          `--x:${laneX.toFixed(2)}%`,
           `--s:${size.toFixed(1)}px`,
-          `--o:${(isNear ? 0.58 + Math.random() * 0.24 : 0.42 + Math.random() * 0.34).toFixed(2)}`,
+          `--o:${(isNear ? 0.62 + Math.random() * 0.25 : 0.48 + Math.random() * 0.38).toFixed(2)}`,
           `--r:${Math.round(Math.random() * 360)}deg`,
-          `--d:${(14 + Math.random() * 17).toFixed(1)}s`,
-          `--delay:${(-Math.random() * 28).toFixed(1)}s`,
-          `--drift:${((Math.random() * 32 - 10)).toFixed(1)}vw`,
-          `--scale:${(0.82 + Math.random() * 0.62).toFixed(2)}`,
-          `--blur:${isNear ? (0.7 + Math.random() * 1.6).toFixed(1) : 0}px`,
-          `--z:${isNear ? 6 : 4}`,
+          `--d:${duration.toFixed(1)}s`,
+          `--delay:${(-Math.random() * duration).toFixed(1)}s`,
+          `--drift:${((Math.random() * 36 - 12)).toFixed(1)}vw`,
+          `--scale:${(0.78 + Math.random() * 0.72).toFixed(2)}`,
+          `--top:${isStream ? (-34 - Math.random() * 18).toFixed(1) : (-18 - Math.random() * 14).toFixed(1)}vh`,
+          `--z:${isNear ? 8 : 5}`,
           `--petal-color:${petalColors[i % petalColors.length]}`
         ].join(';');
         fragment.appendChild(petal);
@@ -1619,7 +1595,7 @@
         mouseY = e.clientY;
 
         const now = performance.now();
-        if (now - lastSpark > 42) {
+        if (now - lastSpark > 72) {
           lastSpark = now;
           const spark = document.createElement('span');
           const dx = (Math.random() - 0.5) * 34;
@@ -1693,7 +1669,6 @@
     const sections = ['hero', 'about', 'work', 'contact'];
 
     function updateNavActive() {
-      const scrollY = window.scrollY;
       const windowH = window.innerHeight;
       let current = 'hero';
 
@@ -1713,9 +1688,7 @@
       navbar.classList.toggle('scrolled', (window.scrollY || 0) > 50);
     }
 
-    // Use both lenis scroll event and window scroll for reliability
     lenis.on('scroll', updateNavActive);
-    window.addEventListener('scroll', updateNavActive, { passive: true });
     updateNavActive();
 
     // ============================================================
@@ -1741,64 +1714,6 @@
       { opacity: 0, scale: 0.92, x: 40 },
       { opacity: 1, scale: 1, x: 0, duration: 1.2, ease: 'power3.out', delay: 0.5 }
     );
-
-    // ============================================================
-    // HERO VIDEO — autoplay muted, sound toggle unmutes the track
-    // ============================================================
-    const heroVideo = document.querySelector('.hero-video');
-    const soundBtn  = document.getElementById('sound-toggle');
-    const iconMuted = document.getElementById('icon-muted');
-    const iconSound = document.getElementById('icon-sound');
-
-    if (heroVideo) {
-      heroVideo.muted  = true;
-      heroVideo.volume = 1;
-      heroVideo.play().catch(() => {});
-    }
-
-    if (soundBtn && heroVideo) {
-      soundBtn.addEventListener('click', () => {
-        const willUnmute = heroVideo.muted;
-
-        if (willUnmute) {
-          // Unmute: fade volume in smoothly via a quick JS ramp
-          heroVideo.muted  = false;
-          heroVideo.volume = 0;
-          let vol = 0;
-          const fadeIn = setInterval(() => {
-            vol = Math.min(1, vol + 0.05);
-            heroVideo.volume = vol;
-            if (vol >= 1) clearInterval(fadeIn);
-          }, 30);
-          iconMuted.style.display = 'none';
-          iconSound.style.display = '';
-          soundBtn.classList.add('unmuted');
-        } else {
-          // Mute: fade volume out then mute
-          let vol = heroVideo.volume;
-          const fadeOut = setInterval(() => {
-            vol = Math.max(0, vol - 0.07);
-            heroVideo.volume = vol;
-            if (vol <= 0) {
-              clearInterval(fadeOut);
-              heroVideo.muted = true;
-            }
-          }, 25);
-          iconMuted.style.display = '';
-          iconSound.style.display = 'none';
-          soundBtn.classList.remove('unmuted');
-        }
-
-        gsap.fromTo(soundBtn, { scale: 0.82 }, { scale: 1, duration: 0.4, ease: 'back.out(2.5)' });
-      });
-    }
-
-    // Mute when tab is hidden, restore on return
-    document.addEventListener('visibilitychange', () => {
-      if (!heroVideo) return;
-      if (document.hidden) heroVideo.volume = 0;
-      else if (!heroVideo.muted) heroVideo.volume = 1;
-    });
 
     // Scroll-triggered: reveal-up elements
     gsap.utils.toArray('.reveal-up').forEach(el => {
