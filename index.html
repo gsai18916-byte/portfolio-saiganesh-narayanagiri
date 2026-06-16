@@ -825,7 +825,7 @@
     ============================================================ */
     #modal-overlay {
       position: fixed; inset: 0;
-      background: rgba(35,97,132,0.38);
+      background: rgba(18,58,78,0.58);
       backdrop-filter: blur(8px);
       z-index: 1000;
       display: none;
@@ -837,34 +837,56 @@
     #modal-overlay.open { display: flex; }
     #modal-overlay.open.visible { opacity: 1; }
     .modal {
-      background: var(--bg-card);
+      background: rgba(248,253,255,0.96);
       border: 1px solid var(--border);
       border-radius: 20px;
-      width: 100%; max-width: 1000px;
+      width: 100%; max-width: 1120px;
       max-height: 90vh;
       overflow: hidden;
-      display: grid; grid-template-columns: 1fr 380px;
+      display: grid; grid-template-columns: minmax(0, 1fr) 360px;
       position: relative;
       box-shadow: 0 28px 90px rgba(67,102,111,0.28);
       backdrop-filter: blur(20px);
     }
     .modal-gallery {
-      background: linear-gradient(135deg, #e2f6ff, #f6fff1);
+      background: #f7fbfd;
       position: relative;
       overflow: hidden;
-      min-height: 440px;
+      min-height: 520px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3.5rem 4rem;
     }
     .modal-gallery-main {
       width: 100%; height: 100%;
       object-fit: contain;
       display: block;
       transition: opacity 0.3s;
-      max-height: 70vh;
+      max-height: calc(90vh - 7rem);
+      position: relative;
+      z-index: 1;
+    }
+    .modal-gallery-main.is-missing {
+      display: none;
+    }
+    .modal-image-error {
+      color: var(--grey-2);
+      display: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.5;
+      padding: 1.5rem;
+      text-align: center;
+      max-width: 340px;
+    }
+    .modal-image-error.visible {
+      display: block;
     }
     .modal-nav-btn {
       position: absolute; top: 50%; transform: translateY(-50%);
       width: 40px; height: 40px;
-      background: rgba(248,253,255,0.84); backdrop-filter: blur(8px);
+      background: rgba(248,253,255,0.94); backdrop-filter: blur(8px);
       border: 1px solid var(--border); border-radius: 50%;
       color: var(--white); cursor: pointer; font-size: 1rem;
       display: flex; align-items: center; justify-content: center;
@@ -875,7 +897,7 @@
     .modal-next { right: 1rem; }
     .modal-counter {
       position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%);
-      background: rgba(248,253,255,0.84); backdrop-filter: blur(8px);
+      background: rgba(248,253,255,0.94); backdrop-filter: blur(8px);
       border: 1px solid var(--border); border-radius: 100px;
       padding: 0.3rem 0.8rem; font-size: 0.75rem; color: var(--grey-2);
     }
@@ -964,7 +986,6 @@
     .hero-image-wrapper,
     .card-image-wrap,
     .saas-card-screens,
-    .modal-gallery,
     .modal-thumb {
       background: linear-gradient(135deg, #e2f6ff, #fff8d7 52%, #eefbe8);
     }
@@ -988,7 +1009,7 @@
     @media (max-width: 1024px) {
       .project-grid { grid-template-columns: repeat(2, 1fr); }
       .modal { grid-template-columns: 1fr; max-height: 90vh; }
-      .modal-gallery { min-height: 300px; }
+      .modal-gallery { min-height: 360px; padding: 3rem 1.5rem; }
       .modal-sidebar { border-left: none; border-top: 1px solid var(--border); }
       .about-grid { grid-template-columns: 1fr; gap: 3rem; }
     }
@@ -1016,6 +1037,7 @@
       .main-tab { flex: 1; text-align: center; padding: 0.75rem 0.5rem; font-size: 0.82rem; }
       footer { justify-content: center; text-align: center; }
       #modal-overlay { padding: 1rem; }
+      .modal-gallery { min-height: 300px; padding: 3rem 1rem; }
     }
     @media (max-width: 480px) {
       section { padding: 4rem 5vw; }
@@ -1522,6 +1544,7 @@
       <!-- Left: Gallery -->
       <div class="modal-gallery">
         <img id="modal-main-img" class="modal-gallery-main" src="" alt="Project image">
+        <div id="modal-image-error" class="modal-image-error">Image file not found. Keep the image folder beside this HTML file.</div>
         <button class="modal-nav-btn modal-prev" onclick="modalNav(-1)" aria-label="Previous image">←</button>
         <button class="modal-nav-btn modal-next" onclick="modalNav(1)" aria-label="Next image">→</button>
         <div class="modal-counter" id="modal-counter">1 / 1</div>
@@ -2192,11 +2215,17 @@
 
     function setModalImage(index) {
       const img = document.getElementById('modal-main-img');
+      const imageError = document.getElementById('modal-image-error');
       const navPrev = document.querySelector('.modal-prev');
       const navNext = document.querySelector('.modal-next');
 
       if (!modalImages.length) {
         img.removeAttribute('src');
+        img.classList.add('is-missing');
+        if (imageError) {
+          imageError.textContent = 'No images added for this project.';
+          imageError.classList.add('visible');
+        }
         document.getElementById('modal-counter').textContent = '0 / 0';
         if (navPrev) navPrev.style.display = 'none';
         if (navNext) navNext.style.display = 'none';
@@ -2207,6 +2236,19 @@
       if (index >= modalImages.length) index = 0;
       modalCurrentIndex = index;
 
+      img.classList.remove('is-missing');
+      if (imageError) imageError.classList.remove('visible');
+      img.onload = () => {
+        img.classList.remove('is-missing');
+        if (imageError) imageError.classList.remove('visible');
+      };
+      img.onerror = () => {
+        img.classList.add('is-missing');
+        if (imageError) {
+          imageError.textContent = 'Image file not found: ' + modalImages[index];
+          imageError.classList.add('visible');
+        }
+      };
       img.src = modalImages[index];
       img.alt = (document.getElementById('modal-title').textContent || 'Project') + ' image ' + (index + 1);
       document.getElementById('modal-counter').textContent = (index + 1) + ' / ' + modalImages.length;
