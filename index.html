@@ -859,10 +859,12 @@
       padding: 3.5rem 4rem;
     }
     .modal-gallery-main {
-      width: 100%; height: 100%;
+      width: 100%;
+      height: auto;
       object-fit: contain;
       display: block;
       transition: opacity 0.3s;
+      max-width: 100%;
       max-height: calc(90vh - 7rem);
       position: relative;
       z-index: 1;
@@ -2091,13 +2093,15 @@
     }
 
     function markMissingImage(img) {
+      if (img.id === 'modal-main-img' && !img.getAttribute('src')) return;
       img.classList.add('img-missing');
     }
 
     function prepareImage(img) {
       if (!img.hasAttribute('decoding')) img.decoding = 'async';
+      img.addEventListener('load', () => img.classList.remove('img-missing'));
       img.addEventListener('error', () => markMissingImage(img), { once: true });
-      if (img.complete && img.naturalWidth === 0) markMissingImage(img);
+      if (img.getAttribute('src') && img.complete && img.naturalWidth === 0) markMissingImage(img);
     }
 
     window.addEventListener('scroll', requestScrollUpdate, { passive: true });
@@ -2237,9 +2241,15 @@
       modalCurrentIndex = index;
 
       img.classList.remove('is-missing');
+      img.classList.remove('img-missing');
+      img.style.visibility = 'visible';
+      img.style.opacity = '1';
       if (imageError) imageError.classList.remove('visible');
       img.onload = () => {
         img.classList.remove('is-missing');
+        img.classList.remove('img-missing');
+        img.style.visibility = 'visible';
+        img.style.opacity = '1';
         if (imageError) imageError.classList.remove('visible');
       };
       img.onerror = () => {
