@@ -261,11 +261,52 @@
       background: rgba(255,255,255,0.48);
       transform: rotate(14deg);
     }
+    .petal.blossom {
+      height: var(--s);
+      border-radius: 50% 48% 52% 50%;
+      background:
+        radial-gradient(circle at 50% 56%, rgba(255,215,230,0.82) 0 10%, transparent 11%),
+        radial-gradient(ellipse at 50% 6%, #fff9fc 0 17%, transparent 18%),
+        radial-gradient(ellipse at 94% 45%, #ffd0df 0 18%, transparent 19%),
+        radial-gradient(ellipse at 50% 94%, #ffc0d5 0 18%, transparent 19%),
+        radial-gradient(ellipse at 6% 45%, #ffe2eb 0 18%, transparent 19%);
+      filter: drop-shadow(0 4px 8px rgba(244,131,165,0.16));
+    }
+    .petal.blossom::after {
+      display: none;
+    }
+    .snow-field {
+      position: absolute;
+      inset: 0;
+      z-index: 6;
+      pointer-events: none;
+      overflow: hidden;
+      transform: translateZ(0);
+      contain: paint;
+    }
+    .snowflake {
+      position: absolute;
+      top: var(--top, -12vh);
+      left: var(--x);
+      width: var(--s);
+      height: var(--s);
+      border-radius: 50%;
+      background: rgba(255,255,255,0.92);
+      opacity: var(--o);
+      box-shadow: 0 0 10px rgba(255,255,255,0.62);
+      animation: snowFall var(--d) linear var(--delay) infinite;
+      will-change: transform;
+    }
     @keyframes petalFall {
       0% { transform: translate3d(0, -22vh, 0) rotate(var(--r)) scale(var(--scale, 1)); }
       30% { transform: translate3d(calc(var(--drift) * .32), 28vh, 0) rotate(calc(var(--r) + 118deg)) scale(var(--scale, 1)); }
       66% { transform: translate3d(var(--drift), 76vh, 0) rotate(calc(var(--r) + 284deg)) scale(var(--scale, 1)); }
       100% { transform: translate3d(calc(var(--drift) * -0.42), 132vh, 0) rotate(calc(var(--r) + 560deg)) scale(var(--scale, 1)); }
+    }
+    @keyframes snowFall {
+      0% { transform: translate3d(0, -18vh, 0); }
+      45% { transform: translate3d(calc(var(--drift) * .55), 52vh, 0); }
+      100% { transform: translate3d(var(--drift), 126vh, 0); }
     }
     @keyframes cloudDrift {
       from { transform: translate3d(-3vw, 0, 0); }
@@ -953,8 +994,7 @@
 
     #cursor,
     #cursor-follower,
-    .cursor-spark,
-    .petal-field {
+    .cursor-spark {
       display: none !important;
     }
 
@@ -1062,6 +1102,7 @@
     <div class="cloud-ribbon"></div>
     <div class="meadow-foreground"></div>
     <div class="petal-field"></div>
+    <div class="snow-field"></div>
   </div>
 
   <!-- ============================================================
@@ -2107,6 +2148,56 @@
     window.addEventListener('scroll', requestScrollUpdate, { passive: true });
     window.addEventListener('resize', requestScrollUpdate);
     updateScrollUI();
+
+    function fillFallingLayer(selector, className, count, setupParticle) {
+      const layer = document.querySelector(selector);
+      if (!layer) return;
+
+      const fragment = document.createDocumentFragment();
+      for (let i = 0; i < count; i++) {
+        const particle = document.createElement('span');
+        particle.className = className;
+        particle.style.cssText = setupParticle(i).join(';');
+        fragment.appendChild(particle);
+      }
+
+      layer.appendChild(fragment);
+    }
+
+    if (!prefersReducedMotion) {
+      const isSmallScreen = window.matchMedia('(max-width: 768px)').matches;
+
+      fillFallingLayer('.petal-field', 'petal blossom', isSmallScreen ? 34 : 58, (i) => {
+        const size = i % 9 === 0 ? 18 + Math.random() * 12 : 9 + Math.random() * 11;
+        const duration = 11 + Math.random() * 12;
+        return [
+          `--x:${(Math.random() * 108 - 4).toFixed(2)}%`,
+          `--s:${size.toFixed(1)}px`,
+          `--o:${(0.46 + Math.random() * 0.34).toFixed(2)}`,
+          `--r:${Math.round(Math.random() * 360)}deg`,
+          `--d:${duration.toFixed(1)}s`,
+          `--delay:${(-Math.random() * duration).toFixed(1)}s`,
+          `--drift:${(Math.random() * 34 - 14).toFixed(1)}vw`,
+          `--scale:${(0.82 + Math.random() * 0.48).toFixed(2)}`,
+          `--top:${(-26 - Math.random() * 22).toFixed(1)}vh`,
+          `--z:${i % 9 === 0 ? 8 : 5}`
+        ];
+      });
+
+      fillFallingLayer('.snow-field', 'snowflake', isSmallScreen ? 52 : 92, () => {
+        const size = 2 + Math.random() * 4.8;
+        const duration = 8 + Math.random() * 13;
+        return [
+          `--x:${(Math.random() * 108 - 4).toFixed(2)}%`,
+          `--s:${size.toFixed(1)}px`,
+          `--o:${(0.34 + Math.random() * 0.48).toFixed(2)}`,
+          `--d:${duration.toFixed(1)}s`,
+          `--delay:${(-Math.random() * duration).toFixed(1)}s`,
+          `--drift:${(Math.random() * 18 - 9).toFixed(1)}vw`,
+          `--top:${(-18 - Math.random() * 18).toFixed(1)}vh`
+        ];
+      });
+    }
 
     document.querySelectorAll('img').forEach(prepareImage);
 
